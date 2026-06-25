@@ -16,7 +16,7 @@ const cardClass =
 
 // 設定パネルに出す幅の表示（px 表記に整える）
 function deviceWidth(d: DeviceConfig): string {
-  return `${d.width}px`
+  return d.minWidth === d.maxWidth ? `${d.maxWidth}px` : `${d.minWidth}–${d.maxWidth}px`
 }
 </script>
 

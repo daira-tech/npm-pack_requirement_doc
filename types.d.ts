@@ -27,7 +27,8 @@ export interface DeviceConfig {
   id: string
   label: string
   frame: 'pc' | 'phone' | 'tablet'
-  width: number
+  minWidth: number
+  maxWidth: number
 }
 
 export interface BaseColorSet {

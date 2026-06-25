@@ -11,10 +11,12 @@ const showThemeToggle = getShowThemeToggle()
 
 // モック基本色（options.baseColors）をカラー一覧の先頭に出す
 const base = getBaseColors()
-const baseTokens: ColorToken[] = [
-  { name: 'baseBg', light: base.light.bg, dark: base.dark.bg, desc: 'モック画面の背景' },
-  { name: 'baseFont', light: base.light.font, dark: base.dark.font, desc: 'モックの基本文字色' },
-]
+const baseTokens: ColorToken[] = base
+  ? [
+      { name: 'baseBg', light: base.light.bg, dark: base.dark.bg, desc: 'モック画面の背景' },
+      { name: 'baseFont', light: base.light.font, dark: base.dark.font, desc: 'モックの基本文字色' },
+    ]
+  : []
 const colors: ColorToken[] = [...baseTokens, ...getColors()]
 </script>
 

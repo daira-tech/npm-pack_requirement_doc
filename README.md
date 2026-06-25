@@ -99,6 +99,16 @@ createSpecViewer({
   components: [Input, Button],
   pages: [loginPage],
   colors,
+  options: {
+    devices: [
+      { id: 'pc', label: 'PC', frame: 'pc', minWidth: 1024, maxWidth: 1920 },
+      { id: 'phone', label: 'Phone', frame: 'phone', minWidth: 320, maxWidth: 1023 },
+    ],
+    baseColors: {
+      light: { bg: '#f5f6f8', font: '#1f2937' },
+      dark: { bg: '#131313', font: '#f3f3f3' },
+    },
+  },
 }).mount('#app')
 ```
 
@@ -207,19 +217,19 @@ export const colors: ColorToken[] = [
 
 ## オプション（`createSpecViewer({ ..., options })`）
 
-すべて**任意**。省略すればデフォルトが使われる（書くのは変えたい項目だけでOK）。
+`showThemeToggle` 以外は**省略時デフォルトなし**。`devices` と `baseColors` は利用側で必ず指定する。
 
 ```ts
 createSpecViewer({
   components, pages, colors,
   options: {
-    showThemeToggle: true,   // ダーク/ライト切替ボタンの表示（既定 true）
-    devices: [               // mock の端末タブ（既定 PC / Phone）
-      { id: 'pc',     label: 'PC',     frame: 'pc',     width: 1024 },
-      { id: 'tablet', label: 'Tablet', frame: 'tablet', width: 768 },
-      { id: 'phone',  label: 'Phone',  frame: 'phone',  width: 360 },
+    showThemeToggle: true,   // ダーク/ライト切替ボタン（省略時 true）
+    devices: [               // mock の端末タブ（必須）
+      { id: 'pc',     label: 'PC',     frame: 'pc',     minWidth: 1024, maxWidth: 1920 },
+      { id: 'tablet', label: 'Tablet', frame: 'tablet', minWidth: 768,  maxWidth: 1024 },
+      { id: 'phone',  label: 'Phone',  frame: 'phone',  minWidth: 320,  maxWidth: 1023 },
     ],
-    baseColors: {            // モック画面の基本色（既定は下記の値）
+    baseColors: {            // モック画面の基本色（必須）
       light: { bg: '#f5f6f8', font: '#1f2937' },
       dark:  { bg: '#131313', font: '#f3f3f3' },
     },
@@ -233,29 +243,36 @@ createSpecViewer({
 
 ### devices
 
-mock 上部のタブに出る端末リスト。
+mock 上部のタブに出る端末リスト。**タブごとに min〜max の範囲が独立**している（Phone の max を超えて PC 幅にはならない）。
 
 | フィールド | 説明 |
 | --- | --- |
 | `id` | タブ識別子（例 `'pc'`） |
 | `label` | タブ表示名（例 `'PC'`） |
 | `frame` | 枠の見た目。`'pc'`=ブラウザ風 / `'phone'`=ノッチ付き / `'tablet'`=ノッチなしベゼル |
-| `width` | 画面幅（**px・必須**） |
+| `minWidth` | mock の **viewport 最小幅**（px）。端末枠・ノッチは含まない |
+| `maxWidth` | mock の **viewport 最大幅**（px）。端末枠・ノッチは含まない |
 
 - 配列を 1 件だけ（例: PC のみ）にすると端末タブ自体が消える。
-- `width` は**デザインの実寸**。ペースに収まらなければ縮めず、**全体を縮尺（最大 1x、はみ出す分だけ縮小）**して表示する。
+- `minWidth === maxWidth` の端末は幅固定（リサイズハンドル非表示）。
+- 表示幅は **mock が描画される viewport 幅**。Phone の黒ベゼル・ノッチはその外側の装飾として重ねる（mock の左右 padding は付けない）。
+- 詳細画面: 右端ドラッグで **選択中タブの min〜max** の範囲内に変更。ペースに収まらなければ**端末枠込みで縮尺**（最大 1x）。
+- タブ切替時は現在幅を引き継ぎ、新タブの min〜max に clamp する。
 
 ### baseColors
 
-モック画面（PC/Tablet/Phone の画面・全画面プレビュー）の**背景色と基本文字色**を、ライト/ダークごとに指定する。
+モック画面（PC/Tablet/Phone の画面・プレビュー）の**背景色と基本文字色**を、ライト/ダークごとに指定する。
 ここで指定した値は `/colors` の一覧に `baseBg` / `baseFont` として自動表示される（情報源が二重化しない）。
 
 ---
 
 ## プレビューモード
 
-- ヘッダの「プレビュー」ボタンで、**要件パネルを隠し画面そのものだけを全画面表示**する。
-- 余計な枠・ヘッダ・ラベルは出さず、選択中端末の `width` で実寸レイアウト → ビューポートに合わせて縮尺表示。
+- ヘッダの「プレビュー」ボタンで、**要件パネルを隠して全画面表示**する。
+- **詳細画面と同じ端末枠・同じ viewport 幅**で mock を **1:1** 表示する（縮尺なし。はみ出す場合はスクロール）。
+- mock の viewport がブラウザより**狭い**ときだけ、外側に境界線（グレー背景 + ボーダー）を出す。**同幅なら枠なし**。
+- 右端ドラッグで幅変更可能（詳細と同じく、**プレビュー前に選んだ端末タブの min〜max 内**）。
+- 端末タブはプレビュー中は出ない（詳細で選んだ端末を引き継ぐ）。
 - 退室は **`Esc`** または右上の「閉じる」ボタン。
 
 ---
@@ -264,7 +281,7 @@ mock 上部のタブに出る端末リスト。
 
 - `createSpecViewer(config)` が `config` を `registryStore` に注入し、ルータ付き Vue アプリを返す。
 - ルート: `/catalog`, `/components/:name/:ver?`, `/pages/:name/:ver?`, `/colors`。
-- `ReqScreen.vue` が額縁（ヘッダ / 左モック / 右要件）と端末枠・縮尺・プレビューを担当。
+- `ReqScreen.vue` が額縁（ヘッダ / 左 mock / 右要件）と端末枠・縮尺・プレビューを担当。端末枠は `MockDeviceFrame.vue`。
 - Tailwind ユーティリティはパッケージに同梱せず、**利用側の `@source` 経由で生成**（`dist/index.js` 内のクラス文字列を走査）。パッケージ同梱の `style.css` は req-md 等の独自スタイルのみ。
 
 ### 公開 API / 型
@@ -290,9 +307,8 @@ import {
 | --- | --- |
 | 部品/画面を追加 | `meta.ts` + `v1/*.html` + `v1/*.req.md` を作り、`main.ts` の配列に追加 |
 | バージョンを増やす | `v2/` を足して `meta.ts` の `versions` と `latest` を更新 |
-| 端末を変える | `options.devices` を編集（PC のみ・Tablet 追加など） |
-| 端末の幅を変える | 各 device の `width`（px） |
+| 端末を変える | 詳細画面の mock 上部タブ、または `options.devices` を編集 |
+| 端末の幅を変える | 詳細 / プレビューで右端ドラッグ（選択中タブの `minWidth`〜`maxWidth` 内） |
 | ダーク切替を隠す | `options.showThemeToggle: false` |
 | モックの基本色を変える | `options.baseColors`（`/colors` にも反映） |
 | ビューア本体を直した | `cd npm_pack && npm run build` で再ビルド |
-```

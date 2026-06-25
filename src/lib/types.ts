@@ -45,8 +45,10 @@ export interface DeviceConfig {
   label: string
   /** 枠の見た目。'pc' はブラウザ風、'phone' はノッチ付き、'tablet' はノッチなしベゼル */
   frame: 'pc' | 'phone' | 'tablet'
-  /** 画面幅（必須・px）。ペースより広い場合はペース幅で頭打ち */
-  width: number
+  /** 最小画面幅（px）。mock の viewport 幅 */
+  minWidth: number
+  /** 最大画面幅（px）。mock の viewport 幅。ノッチ・端末枠は含まない */
+  maxWidth: number
 }
 
 /** モック画面の基本色（背景・文字） */
@@ -61,7 +63,7 @@ export interface BaseColorSet {
 export interface SpecViewerOptions {
   /** ダーク/ライト切替ボタンを表示するか（既定 true） */
   showThemeToggle?: boolean
-  /** mock に出す端末タブ。未指定なら PC / Phone */
+  /** mock に出す端末タブ */
   devices?: DeviceConfig[]
   /** モック画面のライト/ダーク基本色（背景・文字）。カラー一覧にも表示される */
   baseColors?: { light: BaseColorSet; dark: BaseColorSet }
