@@ -49,3 +49,35 @@ html.dark body {
 .dark .req-md td { border-color: #4b5563; }
 .dark .req-md a { color: #60a5fa; }
 .dark .req-md hr { border-top-color: #374151; }
+
+/* PDF 出力（ブラウザ印刷）。ライト固定・縦積み・アイテム間で改ページ。 */
+.print-root {
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+@media print {
+  @page { size: A4 portrait; margin: 12mm; }
+
+  /* 印刷時はライト固定（画面が dark でも PDF はライト） */
+  html.dark body { background: #fff; color: #1f2937; }
+
+  body { background: #fff; }
+
+  /* 画面専用 UI は印刷しない */
+  .print-hide { display: none !important; }
+
+  /* 余白・最大幅をリセットしてページ幅いっぱいに */
+  .print-root { background: #fff !important; min-height: 0 !important; }
+  .print-page {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* アイテム単位で改ページ。アイテム全体は 1 ページに収まらないことがあるため
+     break-inside:avoid は付けない（付けると先頭が空ページになる）。
+     割られたくない最小単位（端末 1 つ・カラーカード）だけ avoid する。 */
+  .print-break { break-before: page; }
+  .break-inside-avoid { break-inside: avoid; }
+}

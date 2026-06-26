@@ -2,12 +2,26 @@ import type { Component } from 'vue'
 
 export type ItemKind = 'component' | 'page'
 
+/** 同一バージョン内の状態別 mock（例: 0件 / 10件）。1 mock につき要件 md を 1 つ持つ。 */
+export interface Mock {
+  /** タブ識別子（例: 'empty', 'full'） */
+  id: string
+  /** タブ表示名（例: '0件', '10件'） */
+  label: string
+  /** この状態の mock。HTML 文字列または Vue コンポーネント */
+  view: string | Component
+  /** この mock の要件 Markdown（?raw で読み込んだ文字列） */
+  requirements: string
+}
+
 /** 1 バージョン分の表示物（コンポーネントは demo、画面は mock）と要件 md */
 export interface VersionEntry {
-  /** 左ペインに描画する表示物。素の HTML 文字列（?raw）または Vue コンポーネント */
-  view: string | Component
-  /** 右ペインに描画する要件マークダウン（?raw で読み込んだ文字列） */
-  req: string
+  /** 単一 mock（mocks 未指定時） */
+  view?: string | Component
+  /** 状態別 mock。2 件以上でタブ切替表示。各 mock が自分の要件 md を持つ */
+  mocks?: Mock[]
+  /** 単一 mock（view 使用時）の要件 Markdown。mocks 使用時は各 mock 側に書く */
+  requirements?: string
 }
 
 /** 部品 or 画面 1 アイテムのメタ情報（registry / catalog / router で共有） */
@@ -18,7 +32,7 @@ export interface ItemMeta {
   /** 一覧やヘッダに表示する見出し */
   title: string
   /** 一覧に出す短い説明 */
-  desc: string
+  description: string
   /** 既定で表示するバージョン */
   latest: string
   /** バージョン文字列 -> 表示物 */
@@ -34,7 +48,7 @@ export interface ColorToken {
   /** ダークモードの値 */
   dark: string
   /** 用途メモ（任意） */
-  desc?: string
+  description?: string
 }
 
 /** mock に表示する端末（PC / Phone / Tablet など）の定義 */

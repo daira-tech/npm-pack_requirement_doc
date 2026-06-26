@@ -26,13 +26,9 @@ const devices = getDevices()
 const currentId = ref(devices[0]?.id ?? '')
 const current = computed(() => devices.find((d) => d.id === currentId.value) ?? devices[0])
 
-function toPx(w: number): string {
-  return `${w}px`
-}
-
 // モック画面の基本色（ライト/ダーク）。テーマに応じて背景・文字色を切り替える。
 const baseColors = getBaseColors()
-const baseStyle = computed(() => {
+const baseStyle = computed((): Record<string, string> => {
   if (!baseColors) return {}
   const c = isDark.value ? baseColors.dark : baseColors.light
   return { background: c.bg, color: c.font }
@@ -101,10 +97,17 @@ function setViewportWidth(w: number) {
   viewportWidth.value = Math.min(d.maxWidth, Math.max(d.minWidth, w))
 }
 
+function applyDeviceMinWidth(device = current.value) {
+  if (!device) return
+  viewportWidth.value = device.minWidth
+}
+
 function selectDevice(id: string) {
-  const w = layoutWidth.value
+  if (id === currentId.value) return
+  const device = devices.find((d) => d.id === id)
+  if (!device) return
   currentId.value = id
-  setViewportWidth(w)
+  applyDeviceMinWidth(device)
 }
 
 function onResizeStart(e: PointerEvent) {
@@ -166,6 +169,7 @@ function onKeydown(e: KeyboardEvent) {
 
 onMounted(() => {
   observer = new ResizeObserver(() => measure())
+  applyDeviceMinWidth()
   observeTargets()
   measure()
   window.addEventListener('keydown', onKeydown)
@@ -187,9 +191,9 @@ watch([currentId, preview, layoutWidth], () =>
 
 <template>
   <!-- 通常表示（ヘッダ / 左 mock / 右 要件） -->
-  <div v-if="!preview" class="min-h-screen p-6">
+  <div v-if="!preview" class="min-h-screen p-6 max-[480px]:p-3">
     <header
-      class="mb-5 flex items-center gap-4 rounded-lg border border-gray-200 bg-white px-5 py-3 text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+      class="mb-5 flex items-center gap-4 rounded-lg border border-gray-200 bg-white px-5 py-3 text-gray-800 max-[480px]:mb-3 max-[480px]:flex-wrap max-[480px]:px-3 max-[480px]:py-2 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
     >
       <RouterLink
         to="/catalog"
@@ -197,8 +201,8 @@ watch([currentId, preview, layoutWidth], () =>
       >
         ← 一覧
       </RouterLink>
-      <h1 class="text-lg font-bold">{{ title }}</h1>
-      <div class="ml-auto flex items-center gap-3">
+      <h1 class="text-lg font-bold max-[480px]:w-full max-[480px]:text-base">{{ title }}</h1>
+      <div class="ml-auto flex items-center gap-3 max-[480px]:ml-0 max-[480px]:w-full max-[480px]:flex-wrap">
         <slot name="toolbar" />
         <button
           type="button"
@@ -218,10 +222,12 @@ watch([currentId, preview, layoutWidth], () =>
       </div>
     </header>
 
-    <div class="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-6">
-      <!-- 左: 画面 mock -->
+    <div
+      class="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-6 max-[480px]:grid-cols-1 max-[480px]:gap-4"
+    >
+      <!-- 上（左）: 画面 mock -->
       <section
-        class="rounded-lg border border-gray-300 bg-white p-6 dark:border-gray-700 dark:bg-gray-800"
+        class="rounded-lg border border-gray-300 bg-white p-6 max-[480px]:p-3 dark:border-gray-700 dark:bg-gray-800"
       >
         <div class="mb-3 flex items-center justify-between">
           <span class="text-xs font-bold uppercase tracking-wide text-gray-400">
@@ -255,6 +261,9 @@ watch([currentId, preview, layoutWidth], () =>
               </button>
             </div>
           </div>
+        </div>
+        <div v-if="$slots['mock-controls']" class="mb-3">
+          <slot name="mock-controls" />
         </div>
         <!-- 指定 px で実寸レイアウトし、ペースに収まらなければ全体を縮小（縮尺）表示 -->
         <div class="rounded-md bg-white p-4 transition-colors dark:bg-gray-800">
@@ -300,9 +309,9 @@ watch([currentId, preview, layoutWidth], () =>
         </div>
       </section>
 
-      <!-- 右: 要件（マークダウン） -->
+      <!-- 下（右）: 要件（マークダウン） -->
       <section
-        class="rounded-lg border border-gray-300 bg-white p-6 dark:border-gray-700 dark:bg-gray-800"
+        class="rounded-lg border border-gray-300 bg-white p-6 max-[480px]:p-3 dark:border-gray-700 dark:bg-gray-800"
       >
         <div class="mb-3 text-xs font-bold uppercase tracking-wide text-gray-400">
           要件
@@ -321,7 +330,10 @@ watch([currentId, preview, layoutWidth], () =>
     >
       閉じる（Esc）
     </button>
-    <div ref="areaRef" class="flex min-h-full w-full justify-center">
+    <div ref="areaRef" class="flex min-h-full w-full flex-col items-center justify-center px-4 py-12">
+      <div v-if="$slots['mock-controls']" class="mb-4">
+        <slot name="mock-controls" />
+      </div>
       <div
         v-if="current"
         class="relative w-fit shrink-0"

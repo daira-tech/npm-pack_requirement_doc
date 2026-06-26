@@ -1,6 +1,6 @@
 {
   "name": "required-doc",
-  "version": "0.0.7",
+  "version": "0.0.22",
   "type": "module",
   "files": ["dist", "style.css", "types.d.ts"],
   "main": "./dist/index.js",

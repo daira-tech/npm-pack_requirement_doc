@@ -13,8 +13,8 @@ const showThemeToggle = getShowThemeToggle()
 const base = getBaseColors()
 const baseTokens: ColorToken[] = base
   ? [
-      { name: 'baseBg', light: base.light.bg, dark: base.dark.bg, desc: 'モック画面の背景' },
-      { name: 'baseFont', light: base.light.font, dark: base.dark.font, desc: 'モックの基本文字色' },
+      { name: 'baseBg', light: base.light.bg, dark: base.dark.bg, description: 'モック画面の背景' },
+      { name: 'baseFont', light: base.light.font, dark: base.dark.font, description: 'モックの基本文字色' },
     ]
   : []
 const colors: ColorToken[] = [...baseTokens, ...getColors()]
@@ -63,8 +63,8 @@ const colors: ColorToken[] = [...baseTokens, ...getColors()]
                 dark: {{ c.dark }}
               </div>
             </div>
-            <div v-if="c.desc" class="mt-1 text-xs text-gray-600 dark:text-gray-400">
-              {{ c.desc }}
+            <div v-if="c.description" class="mt-1 text-xs text-gray-600 dark:text-gray-400">
+              {{ c.description }}
             </div>
           </div>
         </div>

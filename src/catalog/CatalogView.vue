@@ -1,10 +1,15 @@
 <script setup lang="ts">
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import { getComponents, getPages, getShowThemeToggle, getDevices } from '../registryStore'
 import { useTheme } from '../lib/theme'
 import type { DeviceConfig } from '../lib/types'
 
 const { isDark, toggle } = useTheme()
+const router = useRouter()
+
+function openPdfAll() {
+  window.open(router.resolve('/print/all').href, '_blank')
+}
 
 const showThemeToggle = getShowThemeToggle()
 const devices = getDevices()
@@ -22,12 +27,19 @@ function deviceWidth(d: DeviceConfig): string {
 
 <template>
   <div class="mx-auto min-h-screen max-w-3xl p-8">
-    <div class="mb-8 flex items-center">
+    <div class="mb-8 flex items-center gap-3">
       <h1 class="text-2xl font-bold dark:text-gray-100">要件書カタログ</h1>
+      <button
+        type="button"
+        class="ml-auto rounded-md border border-gray-300 px-3 py-1 text-xs font-bold text-gray-600 transition hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+        @click="openPdfAll"
+      >
+        全体をPDF出力
+      </button>
       <button
         v-if="showThemeToggle"
         type="button"
-        class="ml-auto rounded-md border border-gray-300 px-3 py-1 text-xs font-bold text-gray-600 transition hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+        class="rounded-md border border-gray-300 px-3 py-1 text-xs font-bold text-gray-600 transition hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
         @click="toggle"
       >
         {{ isDark ? 'ライトモード' : 'ダークモード' }}
@@ -43,7 +55,7 @@ function deviceWidth(d: DeviceConfig): string {
               {{ s.title }}
               <span class="ml-1 text-xs text-gray-400">({{ s.latest }})</span>
             </div>
-            <div class="text-sm text-gray-500 dark:text-gray-400">{{ s.desc }}</div>
+            <div class="text-sm text-gray-500 dark:text-gray-400">{{ s.description }}</div>
           </RouterLink>
         </li>
       </ul>
@@ -58,7 +70,7 @@ function deviceWidth(d: DeviceConfig): string {
               {{ c.title }}
               <span class="ml-1 text-xs text-gray-400">({{ c.latest }})</span>
             </div>
-            <div class="text-sm text-gray-500 dark:text-gray-400">{{ c.desc }}</div>
+            <div class="text-sm text-gray-500 dark:text-gray-400">{{ c.description }}</div>
           </RouterLink>
         </li>
       </ul>

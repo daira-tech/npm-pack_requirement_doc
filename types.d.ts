@@ -2,16 +2,24 @@ import type { App, Component } from 'vue'
 
 export type ItemKind = 'component' | 'page'
 
-export interface VersionEntry {
+export interface Mock {
+  id: string
+  label: string
   view: string | Component
-  req: string
+  requirements: string
+}
+
+export interface VersionEntry {
+  view?: string | Component
+  mocks?: Mock[]
+  requirements?: string
 }
 
 export interface ItemMeta {
   name: string
   kind: ItemKind
   title: string
-  desc: string
+  description: string
   latest: string
   versions: Record<string, VersionEntry>
 }
@@ -20,7 +28,7 @@ export interface ColorToken {
   name: string
   light: string
   dark: string
-  desc?: string
+  description?: string
 }
 
 export interface DeviceConfig {

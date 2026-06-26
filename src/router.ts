@@ -2,6 +2,7 @@ import { createRouter, createWebHistory, type Router } from 'vue-router'
 import CatalogView from './catalog/CatalogView.vue'
 import ReqPageView from './views/ReqPageView.vue'
 import ColorsView from './colors/ColorsView.vue'
+import PrintView from './print/PrintView.vue'
 
 export function createAppRouter(): Router {
   return createRouter({
@@ -29,6 +30,19 @@ export function createAppRouter(): Router {
           name: route.params.name,
           ver: route.params.ver,
         }),
+      },
+      { path: '/print/all', name: 'print-all', component: PrintView, props: { scope: 'all' } },
+      {
+        path: '/print/components/:name',
+        name: 'print-component',
+        component: PrintView,
+        props: (route) => ({ scope: 'item', kind: 'component', name: route.params.name }),
+      },
+      {
+        path: '/print/pages/:name',
+        name: 'print-page',
+        component: PrintView,
+        props: (route) => ({ scope: 'item', kind: 'page', name: route.params.name }),
       },
     ],
   })
