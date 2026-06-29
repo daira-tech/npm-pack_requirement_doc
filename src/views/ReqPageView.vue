@@ -77,14 +77,14 @@ function changeVer(e: Event) {
       <div v-if="showMockTabs" class="flex flex-wrap items-center gap-2">
         <span class="text-xs font-bold uppercase tracking-wide text-gray-400">状態</span>
         <div
-          class="inline-flex overflow-hidden rounded-md border border-gray-300 text-xs font-bold dark:border-gray-600"
+          class="flex flex-wrap overflow-hidden rounded-md border border-gray-300 text-xs font-bold dark:border-gray-600"
         >
           <button
             v-for="m in mocks"
             :key="m.id"
             type="button"
             :class="[
-              'px-3 py-1 transition',
+              'shrink-0 whitespace-nowrap px-3 py-1 transition',
               currentMockId === m.id
                 ? 'bg-gray-800 text-white dark:bg-gray-200 dark:text-gray-900'
                 : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700',
