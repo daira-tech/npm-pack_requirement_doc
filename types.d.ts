@@ -24,6 +24,13 @@ export interface ItemMeta {
   versions: Record<string, VersionEntry>
 }
 
+export interface DocMeta {
+  name: string
+  title: string
+  description: string
+  content: string
+}
+
 export interface ColorToken {
   name: string
   light: string
@@ -53,6 +60,7 @@ export interface SpecViewerOptions {
 export interface SpecViewerConfig {
   components: ItemMeta[]
   pages: ItemMeta[]
+  documents?: DocMeta[]
   colors: ColorToken[]
   options?: SpecViewerOptions
 }

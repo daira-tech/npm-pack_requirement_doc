@@ -1,19 +1,22 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import type { ColorToken, DeviceConfig, ItemKind, ItemMeta } from '../lib/types'
+import type { ColorToken, DeviceConfig, DocMeta, ItemKind, ItemMeta } from '../lib/types'
 import {
+  findDocument,
   findItem,
   getBaseColors,
   getColors,
   getComponents,
   getDevices,
+  getDocuments,
   getPages,
 } from '../registryStore'
+import { renderMarkdown } from '../lib/markdown'
 import PrintItem from './PrintItem.vue'
 
 // 印刷専用ビュー。操作 UI なし・ライト固定・縦積みで描画し、表示後に印刷ダイアログを開く。
 const props = defineProps<{
-  scope: 'all' | 'item'
+  scope: 'all' | 'item' | 'document'
   kind?: ItemKind
   name?: string
 }>()
@@ -52,7 +55,21 @@ const items = computed<ItemMeta[]>(() => {
     const it = props.kind && props.name ? findItem(props.kind, props.name) : undefined
     return it ? [it] : []
   }
-  return [...getPages(), ...getComponents()]
+  if (props.scope === 'all') {
+    return [...getPages(), ...getComponents()]
+  }
+  return []
+})
+
+const documents = computed<DocMeta[]>(() => {
+  if (props.scope === 'document') {
+    const doc = props.name ? findDocument(props.name) : undefined
+    return doc ? [doc] : []
+  }
+  if (props.scope === 'all') {
+    return getDocuments()
+  }
+  return []
 })
 
 // カラー一覧（全体出力時のみ）。base 値を先頭に、ライト値で表示。
@@ -68,7 +85,11 @@ const colors = computed<ColorToken[]>(() => {
   return [...baseTokens, ...getColors()]
 })
 
-const title = computed(() => (props.scope === 'all' ? '要件書（全体）' : items.value[0]?.title ?? '要件書'))
+const title = computed(() => {
+  if (props.scope === 'all') return '要件書（全体）'
+  if (props.scope === 'document') return documents.value[0]?.title ?? '要件書'
+  return items.value[0]?.title ?? '要件書'
+})
 
 function print() {
   window.print()
@@ -93,7 +114,7 @@ onMounted(() => {
   applyPageSize()
   // mock の縮尺計測が落ち着いてから印刷ダイアログを開く（端末数が増える分やや長めに待つ）
   nextTick(() => {
-    if (items.value.length) setTimeout(print, 800)
+    if (items.value.length || documents.value.length) setTimeout(print, 800)
   })
 })
 
@@ -152,7 +173,7 @@ onBeforeUnmount(() => pageStyle?.remove())
       class="print-page mx-auto bg-white px-10 py-10 text-gray-900"
       :style="{ maxWidth: orientation === 'landscape' ? '1120px' : '760px' }"
     >
-      <div v-if="!items.length" class="text-gray-500">出力対象がありません。</div>
+      <div v-if="!items.length && !documents.length" class="text-gray-500">出力対象がありません。</div>
 
       <template v-else>
         <template v-for="(it, idx) in items" :key="it.kind + '/' + it.name">
@@ -163,6 +184,15 @@ onBeforeUnmount(() => pageStyle?.remove())
               :base-style="baseStyle"
               :max-width="MAX_WIDTH"
             />
+          </div>
+        </template>
+
+        <template v-for="(doc, idx) in documents" :key="'doc/' + doc.name">
+          <div :class="items.length || idx > 0 ? 'print-break pt-10' : ''">
+            <h2 class="mb-4 border-b border-gray-300 pb-2 text-xl font-bold text-gray-900">
+              {{ doc.title }}
+            </h2>
+            <div class="req-md" v-html="renderMarkdown(doc.content)" />
           </div>
         </template>
 

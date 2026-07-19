@@ -2,11 +2,13 @@ import { createApp, type App } from 'vue'
 import RootApp from './App.vue'
 import { createAppRouter } from './router'
 import { setRegistry } from './registryStore'
-import type { ItemMeta, ColorToken, SpecViewerOptions } from './lib/types'
+import type { ItemMeta, DocMeta, ColorToken, SpecViewerOptions } from './lib/types'
 
 export interface SpecViewerConfig {
   components: ItemMeta[]
   pages: ItemMeta[]
+  /** mock なしの自由記述 Markdown（認証・サービス概要など） */
+  documents?: DocMeta[]
   colors: ColorToken[]
   /** 表示オプション（端末構成・ダークモードボタンの有無など） */
   options?: SpecViewerOptions

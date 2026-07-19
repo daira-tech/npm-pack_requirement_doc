@@ -5,6 +5,7 @@ export type {
   Mock,
   VersionEntry,
   ItemMeta,
+  DocMeta,
   ColorToken,
   DeviceConfig,
   SpecViewerOptions,

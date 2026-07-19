@@ -39,6 +39,18 @@ export interface ItemMeta {
   versions: Record<string, VersionEntry>
 }
 
+/** mock なしの自由記述 Markdown 1 件（認証・サービス概要など） */
+export interface DocMeta {
+  /** URL に使う識別子（例: 'auth', 'overview'） */
+  name: string
+  /** 一覧やヘッダに表示する見出し */
+  title: string
+  /** 一覧に出す短い説明 */
+  description: string
+  /** Markdown 本文（?raw で読み込んだ文字列） */
+  content: string
+}
+
 /** カラーページで一覧表示する色定義 */
 export interface ColorToken {
   /** 定義名（例: accentColor, accentColorRight） */

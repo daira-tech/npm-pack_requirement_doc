@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RouterLink, useRouter } from 'vue-router'
-import { getComponents, getPages, getShowThemeToggle, getDevices } from '../registryStore'
+import { getComponents, getPages, getDocuments, getShowThemeToggle, getDevices } from '../registryStore'
 import { useTheme } from '../lib/theme'
 import type { DeviceConfig } from '../lib/types'
 
@@ -15,6 +15,7 @@ const showThemeToggle = getShowThemeToggle()
 const devices = getDevices()
 const components = getComponents()
 const pages = getPages()
+const documents = getDocuments()
 
 const cardClass =
   'block rounded-lg border border-gray-300 bg-white p-4 transition hover:border-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-blue-400'
@@ -62,7 +63,7 @@ function deviceWidth(d: DeviceConfig): string {
     </section>
 
     <section class="mb-10">
-      <h2 class="mb-3 text-lg font-bold text-gray-700 dark:text-gray-300">コンポーネント</h2>
+      <h2 class="mb-3 text-lg font-bold text-gray-700 dark:text-gray-300">部品</h2>
       <ul class="space-y-2">
         <li v-for="c in components" :key="c.name">
           <RouterLink :to="`/components/${c.name}`" :class="cardClass">
@@ -76,11 +77,35 @@ function deviceWidth(d: DeviceConfig): string {
       </ul>
     </section>
 
+    <section v-if="documents.length" class="mb-10">
+      <h2 class="mb-3 text-lg font-bold text-gray-700 dark:text-gray-300">その他</h2>
+      <ul class="space-y-2">
+        <li v-for="d in documents" :key="d.name">
+          <RouterLink :to="`/docs/${d.name}`" :class="cardClass">
+            <div class="font-bold dark:text-gray-100">{{ d.title }}</div>
+            <div class="text-sm text-gray-500 dark:text-gray-400">{{ d.description }}</div>
+          </RouterLink>
+        </li>
+      </ul>
+    </section>
+
+    <section class="mb-10">
+      <h2 class="mb-3 text-lg font-bold text-gray-700 dark:text-gray-300">カラー</h2>
+      <ul class="space-y-2">
+        <li>
+          <RouterLink to="/colors" :class="cardClass">
+            <div class="font-bold dark:text-gray-100">カラー</div>
+            <div class="text-sm text-gray-500 dark:text-gray-400">accentColor 等の色定義一覧</div>
+          </RouterLink>
+        </li>
+      </ul>
+    </section>
+
     <section>
       <h2 class="mb-3 text-lg font-bold text-gray-700 dark:text-gray-300">デザイン</h2>
 
       <div
-        class="mb-2 rounded-lg border border-gray-300 bg-white p-4 dark:border-gray-700 dark:bg-gray-800"
+        class="rounded-lg border border-gray-300 bg-white p-4 dark:border-gray-700 dark:bg-gray-800"
       >
         <div class="mb-2 text-xs font-bold uppercase tracking-wide text-gray-400">表示設定</div>
         <dl class="space-y-2 text-sm">
@@ -104,15 +129,6 @@ function deviceWidth(d: DeviceConfig): string {
           </div>
         </dl>
       </div>
-
-      <ul class="space-y-2">
-        <li>
-          <RouterLink to="/colors" :class="cardClass">
-            <div class="font-bold dark:text-gray-100">カラー</div>
-            <div class="text-sm text-gray-500 dark:text-gray-400">accentColor 等の色定義一覧</div>
-          </RouterLink>
-        </li>
-      </ul>
     </section>
   </div>
 </template>

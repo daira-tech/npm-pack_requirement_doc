@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory, type Router } from 'vue-router'
 import CatalogView from './catalog/CatalogView.vue'
 import ReqPageView from './views/ReqPageView.vue'
+import DocView from './views/DocView.vue'
 import ColorsView from './colors/ColorsView.vue'
 import PrintView from './print/PrintView.vue'
 
@@ -10,6 +11,7 @@ export function createAppRouter(): Router {
     routes: [
       { path: '/', redirect: '/catalog' },
       { path: '/catalog', name: 'catalog', component: CatalogView },
+      { path: '/docs/:name', name: 'doc', component: DocView },
       { path: '/colors', name: 'colors', component: ColorsView },
       {
         path: '/components/:name/:ver?',
@@ -43,6 +45,12 @@ export function createAppRouter(): Router {
         name: 'print-page',
         component: PrintView,
         props: (route) => ({ scope: 'item', kind: 'page', name: route.params.name }),
+      },
+      {
+        path: '/print/docs/:name',
+        name: 'print-doc',
+        component: PrintView,
+        props: (route) => ({ scope: 'document', name: route.params.name }),
       },
     ],
   })
